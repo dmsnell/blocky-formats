@@ -13,12 +13,6 @@ add_action(
 	'init',
 	static function() {
 		wp_enqueue_script_module(
-			'commonmark-parser',
-			'https://unpkg.com/commonmark@0.31.0/dist/commonmark.min.js',
-			array()
-		);
-
-		wp_enqueue_script_module(
 			'blocky-formats',
 			plugins_url( 'blocky-formats' ) . '/src/blocky-formats.js',
 			array(
@@ -28,7 +22,6 @@ add_action(
 				'@wordpress/block-editor',
 				'@wordpress/icons',
 				'@wordpress/plugins',
-				'commonmark-parser',
 			)
 		);
 	}
