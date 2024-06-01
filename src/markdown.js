@@ -1,5 +1,3 @@
-import '../vendor/commonmark.min.js';
-
 /**
  * Convert between Markdown and WordPress Blocks.
  *

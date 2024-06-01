@@ -103,6 +103,7 @@ window.saveToTrac = async () => {
 }
 
 window.saveToMarkdown = async () => {
+	await import('../vendor/commonmark.min.js');
 	const { blocks2markdown } = await import('./markdown.js');
 	const blocks = wp.data.select('core/block-editor').getBlocks();
 	const markdown = blocks2markdown(blocks);
