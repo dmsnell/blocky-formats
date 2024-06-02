@@ -28,7 +28,7 @@ const go = () => {
 		.forEach(blockType => {
 			if (!supportedBlocks.includes(blockType.name)) {
 				wp.blocks.unregisterBlockType(blockType.name)
-			} else if ('core/list-item' === blockType.name) {
+			} else {
 				// Remove all sourcing data from block attribute definitions.
 				wp.blocks.unregisterBlockType(blockType.name);
 				const {allowedBlocks, ...newBlockType} = blockType;
@@ -64,8 +64,8 @@ const go = () => {
 							{
 								label: 'Export to Markdown',
 								variant: 'primary',
-								onClick: () => {
-									const markdown = window.saveToMarkdown();
+								onClick: async () => {
+									const markdown = await window.saveToMarkdown();
 
 									navigator.clipboard.writeText(markdown);
 								}
