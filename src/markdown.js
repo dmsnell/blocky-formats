@@ -55,29 +55,72 @@ const blockToMarkdown = (state, block) => {
         return Array(+digits.join("") + 1).join("M") + roman;
     };
 
+    /**
+     * Indents a string for the current depth.
+     *
+     *  - Leaves blank lines alone.
+     *
+     * @param {string} s multi-line content to indent.
+     */
+    const indent = s => {
+        if (0 === state.indent.length) {
+            return s;
+        }
+
+        const indent = state.indent.join('');
+
+        let at = 0;
+        let last = 0;
+        let out = '';
+        while (at < s.length) {
+            const nextAt = s.indexOf('\n', at);
+
+            // No more newlines? Return rest of string, indented.
+            if (-1 === nextAt ) {
+                out += indent + s.slice(at);
+                break;
+            }
+
+            // Leave successive newlines without indentation.
+            if (nextAt === last + 1) {
+                out += '\n';
+                at++;
+                last = at;
+                continue;
+            }
+
+            out += indent + s.slice(at, nextAt + 1);
+            at = nextAt + 1;
+            last = at;
+        }
+
+        return out;
+    }
+
     switch (block.name) {
         case 'core/quote':
             const content = blocksToMarkdown(state, block.innerBlocks);
             // @todo this probably fails on nested quotes - handle that.
-            return content.split(/\n/g).map(l => `> ${l}`).join('\n') + '\n\n';
+            return content.split('\n').map(l => `> ${l}`).join('\n') + '\n\n';
 
         case 'core/code':
             const code = htmlToMarkdown(block.attributes.content);
             const languageSpec = block.attributes.language || '';
             return `\`\`\`${languageSpec}\n${code}\n\`\`\`\n\n`;
 
+        case 'core/image':
+            return `![${block.attributes.alt}](${block.attributes.url})`;
+
         case 'core/heading':
             return '#'.repeat(block.attributes.level) + ' ' + htmlToMarkdown(block.attributes.content) + '\n\n';
 
         case 'core/list':
-            state.indent++;
             state.listStyle.push({
                 style: block.attributes.ordered ? (block.attributes.type || 'decimal') : '-',
                 count: block.attributes.start || 1
             });
             const list = blocksToMarkdown(state, block.innerBlocks);
             state.listStyle.pop();
-            state.indent--;
             return `${list}\n\n`;
 
         case 'core/list-item':
@@ -126,8 +169,23 @@ const blockToMarkdown = (state, block) => {
             })();
 
             item.count++;
+            const bulletIndent = ' '.repeat(bullet.length + 1);
 
-            return `${' '.repeat(state.indent)}${bullet} ${htmlToMarkdown(block.attributes.content)}\n`;
+            // This hits sibling items and it shouldn't.
+            const [firstLine, restLines]= htmlToMarkdown(block.attributes.content).split('\n', 1);
+            if (0 === block.innerBlocks.length) {
+                let out = `${state.indent.join('')}${bullet} ${firstLine}`;
+                state.indent.push(bulletIndent);
+                if (restLines) {
+                    out += indent(restLines);
+                }
+                state.indent.pop();
+                return out + '\n';
+            }
+            state.indent.push(bulletIndent);
+            const innerContent = indent(`${restLines ? `${restLines}\n` : ''}${blocksToMarkdown(state, block.innerBlocks)}`);
+            state.indent.pop();
+            return `${state.indent.join('')}${bullet} ${firstLine}\n${innerContent}\n`;
 
         case 'core/paragraph':
             return htmlToMarkdown(block.attributes.content) + '\n\n';
@@ -141,13 +199,20 @@ const blockToMarkdown = (state, block) => {
     }
 }
 
+/**
+ * Converts a list of blocks into a Markdown string.
+ *
+ * @param {object} state Parser state.
+ * @param {object[]} blocks Blocks to convert.
+ * @returns {string} Markdown output.
+ */
 const blocksToMarkdown = (state, blocks) => {
-    return blocks.map(block => blockToMarkdown(state, block)).join('').replace(/^[\n\r]+|[\n\r]+$/g, '');
+    return blocks.map(block => blockToMarkdown(state, block)).join('');
 }
 
 export const blocks2markdown = blocks => {
     const state = {
-        indent: 0,
+        indent: [],
         listStyle: [],
     };
 
