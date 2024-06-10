@@ -77,8 +77,8 @@ const go = () => {
 							{
 								label: 'Export to Trac',
 								variant: 'primary',
-								onClick: () => {
-									const trac = window.saveToTrac();
+								onClick: async () => {
+									const trac = await window.saveToTrac();
 
 									navigator.clipboard.writeText(trac);
 								}

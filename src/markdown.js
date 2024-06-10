@@ -104,7 +104,7 @@ const blockToMarkdown = (state, block) => {
             return content.split('\n').map(l => `> ${l}`).join('\n') + '\n\n';
 
         case 'core/code':
-            const code = htmlToMarkdown(block.attributes.content);
+            const code = htmlToMarkdown(block.attributes.content).replace(/\n/g, '<br>\n' );
             const languageSpec = block.attributes.language || '';
             return `\`\`\`${languageSpec}\n${code}\n\`\`\`\n\n`;
 
