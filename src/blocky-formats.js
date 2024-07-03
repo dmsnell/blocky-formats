@@ -112,6 +112,7 @@ window.saveToMarkdown = async () => {
 }
 
 window.loadFromMarkdown = async (input) => {
+	await import('../vendor/commonmark.min.js');
 	const { markdownToBlocks } = await import('./markdown.js');
 
 	const createBlocks = blocks => blocks.map(block => wp.blocks.createBlock(block.name, block.attributes, createBlocks(block.innerBlocks)));

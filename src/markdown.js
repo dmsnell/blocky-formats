@@ -35,6 +35,10 @@ const htmlToMarkdown = html => {
         linkNode => linkNode.outerHTML = `[${linkNode.innerText}](${linkNode.getAttribute('href')})`
     );
 
+    node.querySelectorAll('br').forEach(
+        brNode => brNode.outerHTML = '\n'
+    );
+
     return node.innerText;
 }
 
@@ -349,7 +353,7 @@ const nodeToBlock = (parentBlock, node) => {
             if ('string' === typeof node.info && '' !== node.info) {
                 block.attributes.language = node.info.replace(/[ \t\r\n\f].*/, '');
             }
-            block.attributes.content = node.literal.replace(/\n/g, '<br>');
+            block.attributes.content = node.literal.trim().replace(/\n/g, '<br>');
             break;
 
         case 'html_block':
