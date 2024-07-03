@@ -42,6 +42,19 @@ const htmlToMarkdown = html => {
     return node.innerText;
 }
 
+const longestSequenceOf = (input, substring) => {
+    let longestChain = substring;
+    let nextAt = 0;
+
+    while (-1 !== (nextAt = input.indexOf(longestChain, nextAt))) {
+        nextAt       += substring.length;
+        longestChain += substring;
+    }
+
+    const count = longestChain.length / substring.length - 1;
+    return count;
+}
+
 const blockToMarkdown = (state, block) => {
     /**
      * Convert a number to Roman Numerals.
@@ -110,7 +123,8 @@ const blockToMarkdown = (state, block) => {
         case 'core/code':
             const code = htmlToMarkdown(block.attributes.content);
             const languageSpec = block.attributes.language || '';
-            return `\`\`\`${languageSpec}\n${code}\n\`\`\`\n\n`;
+            const fence = '`'.repeat(Math.max(3, longestSequenceOf(code, '`') + 1));
+            return `${fence}${languageSpec}\n${code}\n${fence}\n\n`;
 
         case 'core/image':
             return `![${block.attributes.alt}](${block.attributes.url})`;
