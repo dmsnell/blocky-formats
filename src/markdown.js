@@ -127,7 +127,7 @@ const blockToMarkdown = (state, block) => {
             return `${fence}${languageSpec}\n${code}\n${fence}\n\n`;
 
         case 'core/image':
-            return `![${block.attributes.alt}](${block.attributes.url})`;
+            return `![${block.attributes.alt}](${block.attributes.url})\n\n`;
 
         case 'core/heading':
             return '#'.repeat(block.attributes.level) + ' ' + htmlToMarkdown(block.attributes.content) + '\n\n';
